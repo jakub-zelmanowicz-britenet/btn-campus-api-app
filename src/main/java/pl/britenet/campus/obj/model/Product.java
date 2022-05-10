@@ -5,9 +5,7 @@ public class Product {
     private final int id;
     private String name;
     private String description;
-
     private int categoryId;
-    private Category category;
 
     public Product(int id) {
         this.id = id;
@@ -39,13 +37,5 @@ public class Product {
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
     }
 }
