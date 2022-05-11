@@ -2,42 +2,36 @@ package pl.britenet.campus.service;
 
 import pl.britenet.campus.obj.model.Product;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ProductService {
 
-    private final List<Product> products;
+    private final Map<Integer, Product> products;
 
     public ProductService() {
-        this.products = new ArrayList<>();
+        this.products = new HashMap<>();
     }
 
     public Optional<Product> retrieve(int id) {
-        return this.products.stream()
-                .filter( product -> product.getId() == id )
-                .findFirst();
+        return Optional.of(this.products.get(id));
     }
 
-    public Product create(int id, String name, String description, int categoryId) {
-        Product product = new Product(id);
-        product.setName(name);
-        product.setDescription(description);
-        product.setCategoryId(categoryId);
-        this.products.add(product);
+    public Product create(Product product) {
+        this.products.put(product.getId(), product);
         return product;
     }
 
-    public Product update(int id, String name, String description, int categoryId) {
-        Product product = this.retrieve(id).orElseThrow();
-        product.setName(name);
-        product.setDescription(description);
-        product.setCategoryId(categoryId);
-        return product;
+    public Product update(Product product) {
+        if (this.products.containsKey(product.getId())) {
+            this.products.replace(product.getId(), product);
+            return product;
+        }
+        else {
+            throw new IllegalStateException("No such element under the given ID");
+        }
     }
 
     public void remove(int id) {
-        this.products.removeIf( product -> product.getId() == id );
+        this.products.remove(id);
     }
 }

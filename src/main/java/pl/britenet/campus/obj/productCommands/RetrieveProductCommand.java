@@ -1,5 +1,6 @@
 package pl.britenet.campus.obj.productCommands;
 
+import pl.britenet.campus.builder.ProductBuilder;
 import pl.britenet.campus.obj.Command;
 import pl.britenet.campus.obj.model.Product;
 import pl.britenet.campus.service.ProductService;
@@ -23,9 +24,25 @@ public class RetrieveProductCommand extends Command {
         System.out.println("Wprowadź ID produktu, który chcesz wyświetlić.");
         int id = scanner.nextInt();
 
-        productService.create(123, "Test", "Test Desc", 1);
-        Product product = productService.retrieve(id).orElseThrow();
+        System.out.println("Wprowadź nazwę produktu:");
+        String name = scanner.nextLine();
 
-        System.out.println(product.getName() + " - " + product.getDescription());
+        System.out.println("Wprowadź opis produktu:");
+        String description = scanner.nextLine();
+
+        System.out.println("Wprowadź ID kategorii:");
+        int categoryId = scanner.nextInt();
+
+        Product product = new ProductBuilder(id)
+                .setName(name)
+                .setDescription(description)
+                .setCategoryId(categoryId)
+                .getProduct();
+
+        productService.create(product);
+
+        product = productService.retrieve(id).orElseThrow();
+
+        System.out.println(product);
     }
 }

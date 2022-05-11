@@ -38,4 +38,9 @@ public class Product {
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
     }
+
+    @Override
+    public String toString() {
+        return String.format("ID: %d, %s - %s, Category: %d", id, name, description, categoryId);
+    }
 }
