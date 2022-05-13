@@ -11,17 +11,15 @@ public class ProductService {
 
     private final DatabaseService databaseService;
 
-    private final Map<Integer, Product> products;
-
     public ProductService(DatabaseService databaseService) {
         this.databaseService = databaseService;
-        this.products = new HashMap<>();
     }
 
     public Optional<Product> retrieve(int id) {
-        Product product = this.databaseService.performQuery("SELECT * FROM product WHERE id=" + id, resultSet -> {
+        String sqlQuery = String.format("SELECT * FROM product WHERE id=%d", id);
+        Product product = this.databaseService.performQuery(sqlQuery, resultSet -> {
 
-            try {
+            if (resultSet.next()) {
                 String name = resultSet.getString("name");
                 String description = resultSet.getString("description");
                 int categoryId = resultSet.getInt("categoryId");
@@ -31,10 +29,8 @@ public class ProductService {
                         .setDescription(description)
                         .setCategoryId(categoryId)
                         .getProduct();
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
+            return null;
 
         });
 
@@ -42,21 +38,28 @@ public class ProductService {
     }
 
     public Product create(Product product) {
-        this.products.put(product.getId(), product);
+        String dml = String.format("INSERT INTO product (name, description, categoryId) VALUES ('%s', '%s', %d)",
+                product.getName(),
+                product.getDescription(),
+                product.getCategoryId());
+
+        this.databaseService.performDML(dml);
         return product;
     }
 
     public Product update(Product product) {
-        if (this.products.containsKey(product.getId())) {
-            this.products.replace(product.getId(), product);
-            return product;
-        }
-        else {
-            throw new IllegalStateException("No such element under the given ID");
-        }
+        String dml = String.format("UPDATE product SET name='%s', description='%s', categoryId='%d' WHERE id=%d",
+                product.getName(),
+                product.getDescription(),
+                product.getCategoryId(),
+                product.getId());
+
+        this.databaseService.performDML(dml);
+        return product;
     }
 
     public void remove(int id) {
-        this.products.remove(id);
+        String dml = String.format("DELETE FROM product WHERE id=%d", id);
+        this.databaseService.performDML(dml);
     }
 }
