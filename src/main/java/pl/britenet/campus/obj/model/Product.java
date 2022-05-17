@@ -6,7 +6,7 @@ public class Product {
     private String name;
     private String description;
     private int categoryId;
-
+    private Category category;
     public Product(int id) {
         this.id = id;
     }
@@ -39,8 +39,16 @@ public class Product {
         this.categoryId = categoryId;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     @Override
     public String toString() {
-        return String.format("ID: %d, %s - %s, Category: %d", id, name, description, categoryId);
+        return String.format("ID: %d, %s - %s, Category: %d => %s", id, name, description, categoryId, category.getName());
     }
 }

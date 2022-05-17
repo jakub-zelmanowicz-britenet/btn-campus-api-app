@@ -1,6 +1,8 @@
 package pl.britenet.campus.service;
 
+import pl.britenet.campus.builder.CategoryBuilder;
 import pl.britenet.campus.builder.ProductBuilder;
+import pl.britenet.campus.obj.model.Category;
 import pl.britenet.campus.obj.model.Product;
 import pl.britenet.campus.service.database.DatabaseService;
 
@@ -16,25 +18,40 @@ public class ProductService {
     }
 
     public Optional<Product> retrieve(int id) {
-        String sqlQuery = String.format("SELECT * FROM product WHERE id=%d", id);
-        Product product = this.databaseService.performQuery(sqlQuery, resultSet -> {
+        String sqlQuery = String.format("SELECT p.id, p.name, p.description, p.categoryId, c.name AS categoryName FROM product p INNER JOIN category c ON p.categoryId = c.id WHERE p.id=%d", id);
 
-            if (resultSet.next()) {
-                String name = resultSet.getString("name");
-                String description = resultSet.getString("description");
-                int categoryId = resultSet.getInt("categoryId");
+        try {
+            Product product = this.databaseService.performQuery(sqlQuery, resultSet -> {
 
-                return new ProductBuilder(id)
-                        .setName(name)
-                        .setDescription(description)
-                        .setCategoryId(categoryId)
-                        .getProduct();
-            }
-            return null;
+                if (resultSet.next()) {
+                    String name = resultSet.getString("name");
+                    String description = resultSet.getString("description");
+                    int categoryId = resultSet.getInt("categoryId");
+                    String categoryName = resultSet.getString("categoryName");
 
-        });
+                    Category category = new CategoryBuilder(categoryId)
+                            .setName(categoryName)
+                            .getCategory();
 
-        return Optional.of(product);
+                    return new ProductBuilder(id)
+                            .setName(name)
+                            .setDescription(description)
+                            .setCategoryId(categoryId)
+                            .setCategory(category)
+                            .getProduct();
+                }
+                return null;
+
+            });
+
+            return Optional.of(product);
+
+        } catch (RuntimeException exception) {
+            System.out.println("ERROR!");
+            System.out.println(exception.getMessage());
+
+            return Optional.empty();
+        }
     }
 
     public Product create(Product product) {
@@ -43,7 +60,12 @@ public class ProductService {
                 product.getDescription(),
                 product.getCategoryId());
 
-        this.databaseService.performDML(dml);
+        try {
+            this.databaseService.performDML(dml);
+        } catch (RuntimeException exception) {
+
+        }
+
         return product;
     }
 
@@ -54,12 +76,24 @@ public class ProductService {
                 product.getCategoryId(),
                 product.getId());
 
-        this.databaseService.performDML(dml);
+        try {
+            this.databaseService.performDML(dml);
+        } catch (RuntimeException exception) {
+            System.out.println("ERROR!");
+            System.out.println(exception.getMessage());
+        }
+
         return product;
     }
 
     public void remove(int id) {
         String dml = String.format("DELETE FROM product WHERE id=%d", id);
-        this.databaseService.performDML(dml);
+
+        try {
+            this.databaseService.performDML(dml);
+        } catch (RuntimeException exception) {
+            System.out.println("ERROR!");
+            System.out.println(exception.getMessage());
+        }
     }
 }

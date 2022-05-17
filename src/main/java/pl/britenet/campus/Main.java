@@ -28,7 +28,10 @@ public class Main {
                 .setCategoryId(1)
                 .getProduct();
 
-        productService.create(product);
+        Product p = productService.retrieve(3).orElseThrow();
+        System.out.println(p);
+
+        //productService.create(product);
 
 //        Optional<Command> oCommand = commandService.getCommand("retrieve-product");
 //        if (oCommand.isPresent()) {
