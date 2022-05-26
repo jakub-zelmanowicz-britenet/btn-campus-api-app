@@ -17,6 +17,39 @@ public class ProductService {
         this.databaseService = databaseService;
     }
 
+    public List<Product> retrieveAll() {
+        String sqlQuery = "SELECT * FROM product";
+
+        try {
+            return this.databaseService.performQuery(sqlQuery, resultSet -> {
+
+                List<Product> productList = new ArrayList<>();
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String description = resultSet.getString("description");
+                    int categoryId = resultSet.getInt("categoryId");
+
+                    Product product = new ProductBuilder(id)
+                            .setName(name)
+                            .setDescription(description)
+                            .setCategoryId(categoryId)
+                            .getProduct();
+
+                    productList.add(product);
+                }
+
+                return productList;
+
+            });
+        } catch (RuntimeException exception) {
+            System.out.println("ERROR!");
+            System.out.println(exception.getMessage());
+
+            return new ArrayList<>();
+        }
+    }
+
     public Optional<Product> retrieve(int id) {
         String sqlQuery = String.format("SELECT p.id, p.name, p.description, p.categoryId, c.name AS categoryName FROM product p INNER JOIN category c ON p.categoryId = c.id WHERE p.id=%d", id);
 
